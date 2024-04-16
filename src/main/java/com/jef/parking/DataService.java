@@ -298,20 +298,26 @@ public class DataService <T>
 	{
 		var result = new HashMap <String, Object> ();
 		
-		try
+		for (var method : obj.getClass().getMethods())
 		{
-			for (var method : obj.getClass().getMethods())
+			var getter = method.getAnnotation(DatabaseGetter.class);
+			
+			if (getter == null) 
 			{
-				var getter = method.getAnnotation(DatabaseGetter.class);
-				
-				if (getter == null) 
-				{
-					continue;
-				}
-				
+				continue;
+			}
+			
+			try
+			{
 				result.put(getter.name(), method.invoke(obj, new Object [] {}));				
 			}
-		} catch (Exception e) {e.printStackTrace();}
+		
+			catch (Exception e) 
+			{
+				System.err.println("method: " + getter.name());
+				e.printStackTrace();
+			}
+		}
 		
 		return result;
 	}

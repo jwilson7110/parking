@@ -1,6 +1,7 @@
 package com.jef.parking;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.sql.DataSource;
@@ -19,7 +20,8 @@ public class DataManager
 		dataSourceBuilder.driverClassName("org.postgresql.Driver");
 		//dataSourceBuilder.url("jdbc:postgresql:Database=postgres;Server=127.0.0.1;Port=5432;");
 		//dataSourceBuilder.url("jdbc:postgresql://localhost:5432/parking?user=postgres&password=cpop0522");
-		dataSourceBuilder.url("jdbc:postgresql://localhost:5432/parking");
+		//dataSourceBuilder.url("jdbc:postgresql://192.168.50.97:5433/parking");
+		dataSourceBuilder.url("jdbc:postgresql://192.168.50.97:5432/parking");
 		dataSourceBuilder.username("postgres");
 		dataSourceBuilder.password("cpop0522");
 		
@@ -28,7 +30,12 @@ public class DataManager
 		dataSource.setMaxIdle(10);
 		dataSource.setMaxTotal(25);
 		
-		
+		try {
+			System.out.print(dataSource.getConnection());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static Connection newConnection () 

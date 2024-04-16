@@ -205,7 +205,7 @@ public class LotAvailabilityService extends DataService <LotAvailability>
 		    	
 		    	lot.setCurrentAvailabilityId(lotAvailability.getId());
 		    	lotService.update(lot);
-			}		
+			}
 			 
 			
 			return result;

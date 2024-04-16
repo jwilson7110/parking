@@ -1,0 +1,35 @@
+database:
+	password: cpop0522
+	port: 5432
+
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/<YOUR_DATABASE_NAME>
+spring.datasource.username=<YOUR_USERNAME>
+spring.datasource.password=<YOUR_PASSWORD>
+
+spring.datasource.url=jdbc:h2:C:\Users\jwils\.dbvis\DEMO\sakila-dbvis
+spring.jpa.hibernate.ddl-auto=<create | create-drop | update | validate | none>
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+
+https://www.onemap.gov.sg/ (coordinate conversion)
+password: 
+	88LtF8x55g8gc!z
+	9AkvbY9Wd@a@3DQ
+	qWLEv@vdqttv3Hn
+confirmation code: DQKOGRML1SYIYEZA9J768TW8NTT309UL
+access token: 
+	eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTk5MjczMmNmOTU3M2Q1YjU0ODc2YjkzYWJmOGQzZSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEyODQwMzg4LCJleHAiOjE3MTMwOTk1ODgsIm5iZiI6MTcxMjg0MDM4OCwianRpIjoiUG4zZGppYzRGalRhY1VpRiIsInVzZXJfaWQiOjMyMTcsImZvcmV2ZXIiOmZhbHNlfQ.nw0n7StmoxU5oVzb0i992PuczOtK_gqb3ZLMTfSPrO8
+	eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTk5MjczMmNmOTU3M2Q1YjU0ODc2YjkzYWJmOGQzZSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEzMjE2MTAxLCJleHAiOjE3MTM0NzUzMDEsIm5iZiI6MTcxMzIxNjEwMSwianRpIjoicWJ5cVdGSWhRVkIxa0dTZyIsInVzZXJfaWQiOjMyMTcsImZvcmV2ZXIiOmZhbHNlfQ.xrNXsESZFE_gWikJ0jm6EGs1MyjNVzrIOMvFxmCWJ5o
+	
+	
+docker
+	docker build -t parking .
+	docker run -d -p 8080:8080 --name parking-container parking
+	
+	
+	cd sql
+	docker build -t parking-sql .
+	docker run -d -p 5433:5432 parking
+	
+	

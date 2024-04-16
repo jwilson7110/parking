@@ -18,7 +18,7 @@ public class CoordinateManager
 			HttpClient client = HttpClient.newHttpClient();
 		    HttpRequest request = HttpRequest.newBuilder()
 		          .uri(URI.create("https://www.onemap.gov.sg/api/common/convert/3414to4326?X=" + xCoordinate + "&Y=" + yCoordinate))
-		          .headers("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTk5MjczMmNmOTU3M2Q1YjU0ODc2YjkzYWJmOGQzZSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEyODQwMzg4LCJleHAiOjE3MTMwOTk1ODgsIm5iZiI6MTcxMjg0MDM4OCwianRpIjoiUG4zZGppYzRGalRhY1VpRiIsInVzZXJfaWQiOjMyMTcsImZvcmV2ZXIiOmZhbHNlfQ.nw0n7StmoxU5oVzb0i992PuczOtK_gqb3ZLMTfSPrO8")
+		          .headers("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTk5MjczMmNmOTU3M2Q1YjU0ODc2YjkzYWJmOGQzZSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEzMjE2MTAxLCJleHAiOjE3MTM0NzUzMDEsIm5iZiI6MTcxMzIxNjEwMSwianRpIjoicWJ5cVdGSWhRVkIxa0dTZyIsInVzZXJfaWQiOjMyMTcsImZvcmV2ZXIiOmZhbHNlfQ.xrNXsESZFE_gWikJ0jm6EGs1MyjNVzrIOMvFxmCWJ5o")
 		          .build();
 	
 		    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());

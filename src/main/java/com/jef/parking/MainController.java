@@ -1,6 +1,11 @@
 package com.jef.parking;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,15 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 
 @RestController
-public class MainController {
+public class MainController 
+{
 	
 	@GetMapping("/lots")
-	public void welcome (HttpServletResponse response, @RequestParam() double latitude, @RequestParam() double longitude, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int per_page) throws IOException 
+	public void lots (HttpServletResponse response, @RequestParam() double latitude, @RequestParam() double longitude, @RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "20") int per_page) throws IOException 
 	{
 		JsonArray result = new JsonArray();
 		
@@ -51,4 +58,24 @@ public class MainController {
 		response.getWriter().print(new Gson().toJson(result));
 	}
 
+	
+	@GetMapping("/importLots")
+	public String importLots ()  
+	{
+		
+		//new LotService().importFromFile("/lots.csv");
+		new LotService().importFromFile("C:\\Users\\jwils\\Documents\\parking\\lots.csv");
+		return "OK";
+		
+	}
+	
+	
+	@GetMapping("/importLotAvailability")
+	public String importLotAvailability()  
+	{
+	
+		new LotAvailabilityService().importFromUrl("https://api.data.gov.sg/v1/transport/carpark-availability");		
+		return "OK";
+		
+	}
 }

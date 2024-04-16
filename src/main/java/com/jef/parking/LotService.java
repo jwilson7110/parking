@@ -99,15 +99,49 @@ public class LotService extends DataService <Lot>
 					
 					String line = scanner.nextLine();
 					
-					var items = line.split(",");
+					var items = new ArrayList <String> ();
+					String item = "";
+					
+					var currentQuote = new ArrayList <Character> ();
+					
+					for (var i = 0; i < line.length(); ++i)
+					{
+						var c = line.charAt(i);
+						Character quote = null;
+						if (!currentQuote.isEmpty())
+						{
+							quote = currentQuote.get(currentQuote.size() - 1);
+						}
+						
+						if (c == ',' && quote == null)
+						{
+							items.add(item);
+							item = "";
+						}
+						
+						else if (quote != null && c == quote)
+						{
+							currentQuote.remove(currentQuote.size() - 1);
+						}
+						else if (c == '"' || c == '\'' || c == '`')
+						{
+							currentQuote.add(c);
+						}
+						else
+						{
+							item += c;
+						}
+					}
+					
+					items.add(item);
 					
 					if (first) {
 						first = false;
-						fields = items;
+						fields = items.toArray(new String [items.size()]);
 						continue;
 					}
 					
-					Lot lot = importNewLot(convertStringsToMap(fields, items));					
+					Lot lot = importNewLot(convertStringsToMap(fields, items.toArray(new String [items.size()])));					
 					result.add(lot);
 					
 					if (existingItemMap.containsKey(lot.getNumber()))
@@ -125,7 +159,9 @@ public class LotService extends DataService <Lot>
 			
 			return result;
 			
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		return null;		
 	}
