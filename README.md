@@ -24,3 +24,15 @@ intallation:
 		docker run -d -p 5433:5432 --name parking-sql-container parking-sql
 
 
+usage:
+	visit /importLots to import initial data
+		this takes somewhere around 30 minutes due to only being able to request one set of lat/lng at a time
+		this can be executed multiple times to update the data with the file edited but there is currently no way to edit the file
+		plan is to provide an interface to upload a file
+
+	visit /importLotAvailability to import availability data
+		this can be executed multiple times to provide new sets of data.
+		older entries are preserved to maintain history
+
+	visit /carparks/nearest?latitude=???&longitude=???&per_page=???&page=???
+		returns json array of closest parking lots
