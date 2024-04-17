@@ -21,11 +21,11 @@ public class LotService extends DataService <Lot>
 		dataTypes.put("currentAvailabilityId", UUID.class);
 	}
 	
-	public HashMap <String, String> convertStringsToMap(String [] keys, String [] values)
+	public HashMap <String, String> convertStringsToMap(String [] keys, String [] values)//maps out a set of strings to the top row of a csv
 	{
 		var result = new HashMap <String, String> ();
 		
-		for (var i = 0; i < Math.min(keys.length, values.length); ++i)
+		for (var i = 0; i < Math.min(keys.length, values.length); ++i)//whichever has fewer items will be our limit
 		{
 			result.put(keys[i], values[i]);
 		}
@@ -181,36 +181,9 @@ public class LotService extends DataService <Lot>
 					lot.setLongitude(longitude.doubleValue());
 				}
 				
-			}
-			
-				
+			}	
 			
 			data.add(lot);
-			
-			/*class SaveThread extends Thread 
-			{
-				public Lot lot;
-				
-				public SaveThread(Lot lot)
-				{
-					this.lot = lot;
-				}
-				
-				public void run ()
-				{
-					if (existingItemMap.containsKey(lot.getNumber()))
-					{
-						lot.setId(existingItemMap.get(lot.getNumber()).getId());
-						update(lot);
-					}
-					else 
-					{
-						insert(lot);
-					}
-				}
-			}
-			
-			new SaveThread(lot).start();*/
 		}
 		
 		scanner.close();

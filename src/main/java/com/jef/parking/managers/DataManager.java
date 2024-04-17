@@ -9,7 +9,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 
 import com.jef.parking.Config;
 
-public class DataManager 
+public class DataManager //establishes database connection pool and provides connections to database
 {
 	
 	public static BasicDataSource dataSource;
@@ -28,10 +28,13 @@ public class DataManager
 		dataSource.setMaxIdle(10);
 		dataSource.setMaxTotal(25);
 		
-		try {
+		try 
+		{
 			System.out.print(dataSource.getConnection());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (SQLException e) 
+		{
+			System.err.println("Could Not establish database connection");
 			e.printStackTrace();
 		}
 	}
@@ -41,7 +44,12 @@ public class DataManager
 		try
 		{ 
 			return dataSource.getConnection();
-		} catch (Exception e) {}
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Could Not create new database connection");
+			e.printStackTrace();
+		}
 		
 		return null;
 	}
@@ -49,14 +57,20 @@ public class DataManager
 	
 	public static Statement newStatement (Connection connection)
 	{
-		if (connection == null) {
+		if (connection == null) //allow an existing connection to be used 
+		{
 			connection = newConnection();
 		}
 		
 		try
 		{
 			return connection.createStatement();
-		} catch (Exception e) {}
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Could Not create new database statement");
+			e.printStackTrace();
+		}
 		
 		return null;
 	}

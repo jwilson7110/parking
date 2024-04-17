@@ -12,7 +12,7 @@ import com.jef.parking.data.services.LotAvailabilityService;
 import com.jef.parking.managers.CoordinateManager;
 
 @DatabaseTable(name = "Lot")
-public class Lot extends Data
+public class Lot extends Data //class representing a row in the lot database table
 {
 	
 	public Lot () {
@@ -47,19 +47,24 @@ public class Lot extends Data
 	@DatabaseSetter(name = "currentAvailabilityId")
 	public void setCurrentAvailabilityId(UUID value)
 	{
+		if (getCurrentAvailabilityId() != value)
+		{
+			setCurrentAvailability(null);//if the id value changes, the we need to let go of the availability object we are holding on to 
+		}
+		
 		this.currentAvailabilityId = value;
-		setCurrentAvailability(null);
+		
 	}
 	
 	private LotAvailability currentAvailability;
-	public LotAvailability getCurrentAvailability()
+	public LotAvailability getCurrentAvailability()//lazy getter for current availability
 	{
 		if (currentAvailability == null)
 		{
 			if (getCurrentAvailabilityId() != null)
 			{
-				var items = new LotAvailabilityService().queryObjectList("select * from LotAvailability where id = ?", new ArrayList <Object> (Arrays.asList(getCurrentAvailabilityId())));
-				if (items.size() > 0)
+				var items = new LotAvailabilityService().queryObjectList("select * from LotAvailability where id = ?", new ArrayList <Object> (Arrays.asList(getCurrentAvailabilityId())));//TODO: functions for return one item and passing in one parameter
+				if (items.size() > 0)//there should be only one or zero
 				{
 					setCurrentAvailability(items.get(0));
 				}
@@ -77,7 +82,7 @@ public class Lot extends Data
 	
 	private String number;
 	
-	@DatabaseGetter(name = "number")
+	@DatabaseGetter(name = "number") //car park number, official external id
 	public String getNumber()
 	{
 		return number;
@@ -120,8 +125,7 @@ public class Lot extends Data
 	@DatabaseSetter(name = "xCoordinate")
 	public void setXCoordinate(double value)
 	{
-		//clearLatitudeAndLongitude();
-		this.xCoordinate = value;
+		this.xCoordinate = value;//TODO: reset latitude and longitude if this value changes, there were issues with doing this before, cant remember what though
 	}
 
 	private double yCoordinate;
@@ -136,8 +140,7 @@ public class Lot extends Data
 	@DatabaseSetter(name = "yCoordinate")
 	public void setYCoordinate(double value)
 	{
-		//clearLatitudeAndLongitude();
-		this.yCoordinate = value;
+		this.yCoordinate = value;//TODO: reset latitude and longitude if this value changes, there were issues with doing this before, cant remember what though
 	}
 	
 	
@@ -148,7 +151,7 @@ public class Lot extends Data
 	{
 		if (latitude == null)
 		{
-			determineLatitudeAndLongitude();
+			determineLatitudeAndLongitude();//if we dont have this value yet, we can request it before returning it
 		}
 		
 		return latitude;
@@ -167,7 +170,7 @@ public class Lot extends Data
 	{		
 		if (longitude == null)
 		{
-			determineLatitudeAndLongitude();
+			determineLatitudeAndLongitude();//if we dont have this value yet, we can request it before returning it
 		}
 		return longitude;
 	}
@@ -305,7 +308,7 @@ public class Lot extends Data
 	
 	public void determineLatitudeAndLongitude()
 	{
-		var data = CoordinateManager.convertSVY21toWGS84(getXCoodinate(), getYCoordinate());
+		var data = CoordinateManager.convertSVY21toWGS84(getXCoodinate(), getYCoordinate());//gets a json from an external endpoint, this process is slow
 		
 		if (data != null)
 		{
@@ -314,6 +317,7 @@ public class Lot extends Data
 		}
 	}
 	
+	//use this if the supplied coordinates change... somehow
 	public void clearLatitudeAndLongitude()
 	{
 		setLatitude(null);

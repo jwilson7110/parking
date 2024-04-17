@@ -9,7 +9,7 @@ import com.jef.parking.annotations.DatabaseTable;
 import com.jef.parking.annotations.TextImportSetter;
 
 @DatabaseTable(name = "LotAvailability")
-public class LotAvailability extends Data
+public class LotAvailability extends Data//class representing a row in the lotAvailability database table
 {
 	
 	public LotAvailability () 

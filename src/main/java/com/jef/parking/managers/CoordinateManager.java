@@ -15,12 +15,11 @@ public class CoordinateManager
 	
 	public static JsonObject convertSVY21toWGS84(double xCoordinate, double yCoordinate)
 	{
-		
 		HttpClient client = HttpClient.newHttpClient();
 		var url = "https://www.onemap.gov.sg/api/common/convert/3414to4326?X=" + xCoordinate + "&Y=" + yCoordinate;
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create(url))
-		        .headers("Authorization", "Bearer " + Config.getValue("onemap.token"))
+		        .headers("Authorization", "Bearer " + Config.getValue("onemap.token")) //this token tends to expire,TODO: update this token dynmically 
 		        .build();
 	
 		HttpResponse<String> response = null;
@@ -48,10 +47,10 @@ public class CoordinateManager
 		
 	}
 	
+	//in app method for calculating distance between 2 coordinates
+	//not currently used
 	public static double calculateDistanceBetween2Coordinates (double latitude1, double longitude1, double latitude2, double longitude2)
 	{
-		
-		//return Math.acos( Math.sin(latitude1) * Math.sin(latitude2) + Math.cos(latitude1) * Math.cos(latitude2) * Math.cos(longitude2 - longitude1) ) * 6371;
 		
 		double lat1Rad = Math.toRadians(latitude1);
 	    double lat2Rad = Math.toRadians(latitude2);

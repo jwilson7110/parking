@@ -24,68 +24,11 @@ public class LotAvailabilityService extends DataService <LotAvailability>
 	public LotAvailabilityService ()
 	{
 		super(LotAvailability.class);
-	}
+	}	
 	
-	public HashMap <String, String> convertStringsToMap(String [] keys, String [] values)
-	{
-		var result = new HashMap <String, String> ();
-		
-		for (var i = 0; i < Math.min(keys.length, values.length); ++i)
-		{
-			result.put(keys[i], values[i]);
-		}
-		
-		return result;
-		
-	}
 	
-	public LotAvailability importNewLotAvailability (HashMap <String, String> values)
-	{
-		LotAvailability result = new LotAvailability();
-		
-		
-		
-		for (var key : values.keySet())
-		{
-			Object value = values.get(key);
-			
-			for (Method method : LotAvailability.class.getMethods())
-			{							
-				var annotation = method.getAnnotation(TextImportSetter.class);
-				
-				if (annotation == null)
-				{
-					continue;
-				}
-				
-				var setter = (TextImportSetter)annotation;
-						
-				if (setter.name().equals(key))
-				{
-					var type = method.getParameterTypes()[0];
-					if (type.getTypeName() == "double")
-					{
-						value = Double.parseDouble((String)value);
-					}
-					else if (type.getTypeName() == "int")
-					{
-						value = Integer.valueOf((String)value);
-					}
-					
-					try 
-					{
-						method.invoke(result, value);
-					} catch (Exception e) {}
-				
-				}
-			}
-		}
-		
-		
-		return result;
-	}
 	
-	public HashMap <String, Object> flattenData(JsonArray data, HashMap <String, Object> result)
+	public HashMap <String, Object> flattenData(JsonArray data, HashMap <String, Object> result) //regardless of nested data, we can go through all the values in the json element
 	{
 		for (var item : data.asList())
 		{
@@ -102,7 +45,7 @@ public class LotAvailabilityService extends DataService <LotAvailability>
 		return result;
 	}
 	
-	public HashMap <String, Object> flattenData(JsonObject data, HashMap <String, Object> result)
+	public HashMap <String, Object> flattenData(JsonObject data, HashMap <String, Object> result)//regardless of nested data, we can go through all the values in the json element
 	{
 		if (result == null) 
 		{
@@ -115,7 +58,7 @@ public class LotAvailabilityService extends DataService <LotAvailability>
 			
 			if (item.isJsonObject())
 			{
-				flattenData(item.getAsJsonObject(), result);
+				flattenData(item.getAsJsonObject(), result); //if we come across a json element, loop through all its values and map them to the base set 
 			}
 			if (item.isJsonArray())
 			{
@@ -123,95 +66,121 @@ public class LotAvailabilityService extends DataService <LotAvailability>
 			}
 			else
 			{
-				result.put(key, item.getAsString());
+				result.put(key, item.getAsString()); //put the key value pair into the final result 
 			}
 		}
 		
 		return result;
 	}
 	
-	public HashMap <String, Object> flattenData(JsonObject data)
+	public HashMap <String, Object> flattenData(JsonObject data) //at level one, we dont have a final result
 	{
 		return flattenData(data, null);
 	}
+	
+	//TODO: use multiple value insert functions in order to not close connection with each entry
+	public ArrayList <LotAvailability> importData(String dataString) //take in a json array string and convert it to a list of Objects
+	{
+		var result = new ArrayList <LotAvailability> ();
 		
-	public ArrayList <LotAvailability> importFromUrl (String url)
+		//we need to map out the existing lots so we can find the lot id the lotavailability is linked to
+		var lotService = new LotService();
+		var lots = lotService.queryObjectList("select * from Lot");
+		var lotMap = new HashMap <String, Lot>();
+		
+		for (var lot : lots)
+		{
+			lotMap.put(lot.getNumber(), lot); //we map by the lot number since we dont have the id yet
+		}
+		
+		
+		var allData = new Gson().fromJson(dataString, JsonObject.class);//start by converting the string into a Json elemetn
+	    var data = allData.getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject().get("carpark_data").getAsJsonArray(); //trace through to out elements	    
+	    
+	    for (var item : data.asList())
+	    {
+	    	var lotAvailability = new LotAvailability();
+	    	lotAvailability.setId(UUID.randomUUID()); //we need to know the id to update the lot row
+	    	
+	    	var jsonData = item.getAsJsonObject();
+	    	var number = jsonData.get("carpark_number").getAsString();
+	    	if (!lotMap.containsKey(number))//if we dont have a lot row with this number we ignore it for now
+	    	{
+	    		continue;
+	    	}
+	    	
+	    	var lot = lotMap.get(number); //get the lot this availability set belongs to
+	    	lotAvailability.setLotId(lot.getId());//we use ou own ids to join
+	    	
+	    	var itemMap = flattenData(jsonData);//we dont care where the value is nested
+	    	
+	    	for (var method : LotAvailability.class.getMethods()) //go through every method in Lot AVailability
+	    	{
+	    		var setter = method.getAnnotation(TextImportSetter.class);
+	    		
+	    		if (setter == null) //set every method is a setter
+	    		{
+	    			continue;
+	    		}
+	    		
+	    		var value = itemMap.get(setter.name());
+	    		
+	    		var type = method.getParameterTypes()[0];//the setter should only have one parameter, we need to know the type in case we need to make conversions
+	    		
+	    		//TODO: support more types
+	    		if (type.equals(LocalDateTime.class))
+	    		{
+	    			value = LocalDateTime.parse((String)value);
+	    		}
+	    		else if (type.getTypeName() == "int")
+				{
+					value = Integer.valueOf((String)value);
+				}
+	    		
+	    		try
+	    		{
+	    			method.invoke(lotAvailability, value);
+	    		} 
+	    		catch (Exception e) 
+	    		{
+	    			System.err.println("Could not Execute Setter: " + setter.name() + " value: " + value + " valueType: " + value.getClass().getName());
+					e.printStackTrace();
+	    		}
+	    	}
+	    	
+	    	this.insert(lotAvailability);
+	    	
+	    	lot.setCurrentAvailabilityId(lotAvailability.getId());//we are assuming this is the latest availability data
+	    	lotService.update(lot);
+		}
+		
+		return result;	
+		
+	}
+		
+	public ArrayList <LotAvailability> importFromUrl (String url) //import data from json endpoint at supplied url and insert into database 
 	{	
+		HttpClient client = HttpClient.newHttpClient();
+	    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+	    HttpResponse<String> response = null;
+	    
 		try
 		{
-			var result = new ArrayList <LotAvailability> ();
-			
-			var lotService = new LotService();
-			var lots = lotService.queryObjectList("select * from Lot");
-			var lotMap = new HashMap <String, Lot>();
-			
-			for (var lot : lots)
-			{
-				lotMap.put(lot.getNumber(), lot);
-			}
-			
-			HttpClient client = HttpClient.newHttpClient();
-		    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
-	
-		    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-		    
-		    
-		    var allData = new Gson().fromJson(response.body(), JsonObject.class);
-		    var data = allData.getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject().get("carpark_data").getAsJsonArray();
-		    
-		    for (var item : data.asList())
-		    {
-		    	var lotAvailability = new LotAvailability();
-		    	lotAvailability.setId(UUID.randomUUID());
-		    	
-		    	var jsonData = item.getAsJsonObject();
-		    	var number = jsonData.get("carpark_number").getAsString();
-		    	if (!lotMap.containsKey(number))
-		    	{
-		    		continue;
-		    	}
-		    	
-		    	var lot = lotMap.get(number);		    	
-		    	lotAvailability.setLotId(lot.getId());
-		    	
-		    	var itemMap = flattenData(jsonData);
-		    	
-		    	for (var method : LotAvailability.class.getMethods())
-		    	{
-		    		var setter = method.getAnnotation(TextImportSetter.class);
-		    		
-		    		if (setter == null)
-		    		{
-		    			continue;
-		    		}
-		    		
-		    		var value = itemMap.get(setter.name());
-		    		
-		    		var type = method.getParameterTypes()[0];
-		    		if (type.equals(LocalDateTime.class))
-		    		{
-		    			value = LocalDateTime.parse((String)value);
-		    		}
-		    		else if (type.getTypeName() == "int")
-					{
-						value = Integer.valueOf((String)value);
-					}
-		    		
-		    		method.invoke(lotAvailability, value);
-		    	}
-		    	
-		    	this.insert(lotAvailability);
-		    	
-		    	lot.setCurrentAvailabilityId(lotAvailability.getId());
-		    	lotService.update(lot);
-			}
-			 
-			
-			return result;
-			
-		} catch (Exception e) {e.printStackTrace();}
+		    response = client.send(request, BodyHandlers.ofString());
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Could not retireve data from url: " + url);
+			e.printStackTrace();
+		}
 		
-		return null;		
+		if (response == null)
+		{
+			return null;
+		}
+		
+	    return importData(response.body());
+		    
 	}
 	
 	
