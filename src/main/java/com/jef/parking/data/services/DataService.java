@@ -436,7 +436,7 @@ public class DataService <T extends Data> //primary use is to map objects to dat
 				continue;
 			}
 			
-			if (!data.containsKey(setter.name()))//not every mothod is a setter
+			if (!data.containsKey(setter.name()))//not every method is a setter
 			{
 				continue;
 			}
