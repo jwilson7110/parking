@@ -1,11 +1,6 @@
-package com.jef.parking;
+package com.jef.parking.controllers;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.jef.parking.Config;
+import com.jef.parking.data.services.LotAvailabilityService;
+import com.jef.parking.data.services.LotService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
@@ -64,7 +61,7 @@ public class MainController
 	{
 		
 		//new LotService().importFromFile("/lots.csv");
-		new LotService().importFromFile("C:\\Users\\jwils\\Documents\\parking\\lots.csv");
+		new LotService().importFromFile(Config.getValue("lots.file"));
 		return "OK";
 		
 	}

@@ -1,13 +1,10 @@
-package com.jef.parking;
+package com.jef.parking.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME) 
-public @interface DatabaseTable 
+public @interface DatabaseGetter 
 {
-	
 	String name();
-	String primaryKey() default "id";
-
 }

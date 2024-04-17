@@ -1,11 +1,15 @@
-package com.jef.parking;
+package com.jef.parking.data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.jef.parking.annotations.DatabaseGetter;
+import com.jef.parking.annotations.DatabaseSetter;
+import com.jef.parking.annotations.DatabaseTable;
+import com.jef.parking.annotations.TextImportSetter;
+
 @DatabaseTable(name = "LotAvailability")
-public class LotAvailability 
+public class LotAvailability extends Data
 {
 	
 	public LotAvailability () 

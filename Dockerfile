@@ -9,4 +9,4 @@ COPY pom.xml /home/app
 COPY lots.csv lots.csv
 RUN mvn -f /home/app/pom.xml clean package
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/home/app/target/parking-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","-jar","/home/app/target/parking-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=production"]

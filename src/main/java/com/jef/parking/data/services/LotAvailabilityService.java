@@ -1,6 +1,5 @@
-package com.jef.parking;
+package com.jef.parking.data.services;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,15 +8,15 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.UUID;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.jef.parking.annotations.TextImportSetter;
+import com.jef.parking.data.Lot;
+import com.jef.parking.data.LotAvailability;
 
 public class LotAvailabilityService extends DataService <LotAvailability> 
 {

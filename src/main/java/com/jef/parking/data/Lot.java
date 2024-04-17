@@ -1,11 +1,18 @@
-package com.jef.parking;
+package com.jef.parking.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
+import com.jef.parking.annotations.DatabaseGetter;
+import com.jef.parking.annotations.DatabaseSetter;
+import com.jef.parking.annotations.DatabaseTable;
+import com.jef.parking.annotations.TextImportSetter;
+import com.jef.parking.data.services.LotAvailabilityService;
+import com.jef.parking.managers.CoordinateManager;
+
 @DatabaseTable(name = "Lot")
-public class Lot 
+public class Lot extends Data
 {
 	
 	public Lot () {
@@ -299,8 +306,12 @@ public class Lot
 	public void determineLatitudeAndLongitude()
 	{
 		var data = CoordinateManager.convertSVY21toWGS84(getXCoodinate(), getYCoordinate());
-		setLatitude(data.get("latitude").getAsDouble());
-		setLongitude(data.get("longitude").getAsDouble());
+		
+		if (data != null)
+		{
+			setLatitude(data.get("latitude").getAsDouble());
+			setLongitude(data.get("longitude").getAsDouble());
+		}
 	}
 	
 	public void clearLatitudeAndLongitude()

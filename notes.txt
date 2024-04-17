@@ -30,6 +30,6 @@ docker
 	
 	cd sql
 	docker build -t parking-sql .
-	docker run -d -p 5433:5432 parking
+	docker run -d -p 5433:5432 --name parking-sql-container parking-sql
 	
 	

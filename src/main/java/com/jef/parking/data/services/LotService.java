@@ -1,4 +1,4 @@
-package com.jef.parking;
+package com.jef.parking.data.services;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -8,12 +8,17 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.UUID;
 
+import com.jef.parking.annotations.TextImportSetter;
+import com.jef.parking.data.Lot;
+
 public class LotService extends DataService <Lot> 
 {
-
+	
+	
 	public LotService ()
 	{
 		super(Lot.class);
+		dataTypes.put("currentAvailabilityId", UUID.class);
 	}
 	
 	public HashMap <String, String> convertStringsToMap(String [] keys, String [] values)
@@ -32,8 +37,6 @@ public class LotService extends DataService <Lot>
 	public Lot importNewLot (HashMap <String, String> values)
 	{
 		Lot result = new Lot();
-		
-		
 		
 		for (var key : values.keySet())
 		{
@@ -77,73 +80,124 @@ public class LotService extends DataService <Lot>
 		
 	public ArrayList <Lot> importFromFile (String filePath)
 	{	
+		var data = new ArrayList <Lot> ();
+		
+		var existingItems = queryMapList("select id, number, currentAvailabilityId, latitude, longitude from Lot");
+		var existingItemMap = new HashMap <String, HashMap <String, Object>>();
+		
+		for (var lot : existingItems)
+		{
+			existingItemMap.put((String)lot.get("number"), lot);
+		}
+		  
+		var file = new File (filePath);
+		String [] fields = new String[0];
+		
+		boolean first = true;
+		
+		Scanner scanner = null;
+		
 		try
 		{
-			var result = new ArrayList <Lot> ();
+			scanner = new Scanner(file);
+		}
+		catch (Exception e)
+		{
+			System.err.println("Could not open file: " + filePath);
+			e.printStackTrace();
 			
-			var existingItems = queryObjectList("select * from Lot");
-			var existingItemMap = new HashMap <String, Lot>();
-			
-			for (var lot : existingItems)
+			if (scanner != null)
 			{
-				existingItemMap.put(lot.getNumber(), lot);
+				scanner.close();
 			}
-			  
-			var file = new File (filePath);
-			String [] fields = new String[0];
 			
-			boolean first = true;			
-			try (var scanner = new Scanner(file))
+			return null;
+		}
+		
+		while (scanner.hasNextLine()) {
+			
+			String line = scanner.nextLine();
+			
+			var items = new ArrayList <String> ();
+			String item = "";
+			
+			var currentQuote = new ArrayList <Character> ();
+			
+			for (var i = 0; i < line.length(); ++i)
 			{
-				while (scanner.hasNextLine()) {
-					
-					String line = scanner.nextLine();
-					
-					var items = new ArrayList <String> ();
-					String item = "";
-					
-					var currentQuote = new ArrayList <Character> ();
-					
-					for (var i = 0; i < line.length(); ++i)
-					{
-						var c = line.charAt(i);
-						Character quote = null;
-						if (!currentQuote.isEmpty())
-						{
-							quote = currentQuote.get(currentQuote.size() - 1);
-						}
-						
-						if (c == ',' && quote == null)
-						{
-							items.add(item);
-							item = "";
-						}
-						
-						else if (quote != null && c == quote)
-						{
-							currentQuote.remove(currentQuote.size() - 1);
-						}
-						else if (c == '"' || c == '\'' || c == '`')
-						{
-							currentQuote.add(c);
-						}
-						else
-						{
-							item += c;
-						}
-					}
-					
+				var c = line.charAt(i);
+				Character quote = null;
+				if (!currentQuote.isEmpty())
+				{
+					quote = currentQuote.get(currentQuote.size() - 1);
+				}
+				
+				if (c == ',' && quote == null)
+				{
 					items.add(item);
-					
-					if (first) {
-						first = false;
-						fields = items.toArray(new String [items.size()]);
-						continue;
-					}
-					
-					Lot lot = importNewLot(convertStringsToMap(fields, items.toArray(new String [items.size()])));					
-					result.add(lot);
-					
+					item = "";
+				}
+				
+				else if (quote != null && c == quote)
+				{
+					currentQuote.remove(currentQuote.size() - 1);
+				}
+				else if (c == '"'/* || c == '\'' || c == '`'*/)
+				{
+					currentQuote.add(c);
+				}
+				else
+				{
+					item += c;
+				}
+			}
+			
+			items.add(item);
+			
+			if (first) {
+				first = false;
+				fields = items.toArray(new String [items.size()]);
+				continue;
+			}
+			
+			Lot lot = importNewLot(convertStringsToMap(fields, items.toArray(new String [items.size()])));					
+			
+			var existingLot = existingItemMap.getOrDefault(lot.getNumber(), null);
+			if (existingLot != null)
+			{
+				lot.setId((UUID)existingLot.get("id"));
+				lot.setCurrentAvailabilityId((UUID)existingLot.get("currentAvailabilityId"));
+				
+				Float latitude = (Float)existingLot.get("latitude");
+				Float longitude = (Float)existingLot.get("longitude");
+				
+				if (latitude != null)
+				{
+					lot.setLatitude(latitude.doubleValue());
+				}
+				
+				if (longitude != null)
+				{
+					lot.setLongitude(longitude.doubleValue());
+				}
+				
+			}
+			
+				
+			
+			data.add(lot);
+			
+			/*class SaveThread extends Thread 
+			{
+				public Lot lot;
+				
+				public SaveThread(Lot lot)
+				{
+					this.lot = lot;
+				}
+				
+				public void run ()
+				{
 					if (existingItemMap.containsKey(lot.getNumber()))
 					{
 						lot.setId(existingItemMap.get(lot.getNumber()).getId());
@@ -154,16 +208,15 @@ public class LotService extends DataService <Lot>
 						insert(lot);
 					}
 				}
-			}		
-			 
+			}
 			
-			return result;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
+			new SaveThread(lot).start();*/
 		}
 		
-		return null;		
+		scanner.close();
+		
+		saveObjects(data);
+		return data;
 	}
 	
 	public ArrayList <Lot> queryLotsClosestToPoint(double latitude, double longitude, int page, int per_page)

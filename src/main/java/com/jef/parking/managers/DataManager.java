@@ -1,29 +1,27 @@
-package com.jef.parking;
+package com.jef.parking.managers;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 
+import com.jef.parking.Config;
+
 public class DataManager 
 {
+	
 	public static BasicDataSource dataSource;
+	
 	
 	static 
 	{
 		DataSourceBuilder<BasicDataSource> dataSourceBuilder = (DataSourceBuilder<BasicDataSource>) DataSourceBuilder.create();
-		//dataSourceBuilder.driverClassName("cdata.jdbc.postgresql.PostgreSQLDriver");
 		dataSourceBuilder.driverClassName("org.postgresql.Driver");
-		//dataSourceBuilder.url("jdbc:postgresql:Database=postgres;Server=127.0.0.1;Port=5432;");
-		//dataSourceBuilder.url("jdbc:postgresql://localhost:5432/parking?user=postgres&password=cpop0522");
-		//dataSourceBuilder.url("jdbc:postgresql://192.168.50.97:5433/parking");
-		dataSourceBuilder.url("jdbc:postgresql://192.168.50.97:5432/parking");
-		dataSourceBuilder.username("postgres");
-		dataSourceBuilder.password("cpop0522");
+		dataSourceBuilder.url("jdbc:postgresql://" + Config.getValue("spring.datasource.host") + ":" + Config.getValue("spring.datasource.port") + "/parking");
+		dataSourceBuilder.username(Config.getValue("spring.datasource.username"));
+		dataSourceBuilder.password(Config.getValue("spring.datasource.password"));
 		
 		dataSource = dataSourceBuilder.build();
 		dataSource.setMinIdle(5);
@@ -41,7 +39,7 @@ public class DataManager
 	public static Connection newConnection () 
 	{
 		try
-		{
+		{ 
 			return dataSource.getConnection();
 		} catch (Exception e) {}
 		

@@ -1,4 +1,4 @@
-package com.jef.parking;
+package com.jef.parking.managers;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,26 +8,44 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jef.parking.Config;
 
 public class CoordinateManager 
 {
 	
 	public static JsonObject convertSVY21toWGS84(double xCoordinate, double yCoordinate)
 	{
-		try {
-			HttpClient client = HttpClient.newHttpClient();
-		    HttpRequest request = HttpRequest.newBuilder()
-		          .uri(URI.create("https://www.onemap.gov.sg/api/common/convert/3414to4326?X=" + xCoordinate + "&Y=" + yCoordinate))
-		          .headers("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTk5MjczMmNmOTU3M2Q1YjU0ODc2YjkzYWJmOGQzZSIsImlzcyI6Imh0dHA6Ly9pbnRlcm5hbC1hbGItb20tcHJkZXppdC1pdC0xMjIzNjk4OTkyLmFwLXNvdXRoZWFzdC0xLmVsYi5hbWF6b25hd3MuY29tL2FwaS92Mi91c2VyL3Bhc3N3b3JkIiwiaWF0IjoxNzEzMjE2MTAxLCJleHAiOjE3MTM0NzUzMDEsIm5iZiI6MTcxMzIxNjEwMSwianRpIjoicWJ5cVdGSWhRVkIxa0dTZyIsInVzZXJfaWQiOjMyMTcsImZvcmV2ZXIiOmZhbHNlfQ.xrNXsESZFE_gWikJ0jm6EGs1MyjNVzrIOMvFxmCWJ5o")
-		          .build();
+		
+		HttpClient client = HttpClient.newHttpClient();
+		var url = "https://www.onemap.gov.sg/api/common/convert/3414to4326?X=" + xCoordinate + "&Y=" + yCoordinate;
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(url))
+		        .headers("Authorization", "Bearer " + Config.getValue("onemap.token"))
+		        .build();
 	
-		    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-		    
-		    return JsonParser.parseString(response.body()).getAsJsonObject();
-		    
-		} catch (Exception e) {e.printStackTrace();} 
-			
-		return null;
+		HttpResponse<String> response = null;
+		
+		try
+		{			
+			response = client.send(request, BodyHandlers.ofString());
+		}
+		catch (Exception e)
+		{
+			System.err.println("Error in http request to " + url);
+			e.printStackTrace();
+		}
+		
+		JsonObject result = null;
+		
+		if (response != null)
+		{
+			var body = response.body();
+			result = JsonParser.parseString(body).getAsJsonObject();
+		}
+		
+		return result;
+		
+		
 	}
 	
 	public static double calculateDistanceBetween2Coordinates (double latitude1, double longitude1, double latitude2, double longitude2)

@@ -1,0 +1,8 @@
+tests
+comments
+improve variable naming
+import lot interface
+get closest lot interface
+kafka
+error handling
+ 
