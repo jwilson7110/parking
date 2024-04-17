@@ -1,12 +1,17 @@
 
 requires 
+
 	java 17 (probably), (i think)
+
 	docker
 
 
-intallation:
+installation:
+
 	make sure docker is running
+
 	open console
+
 	navigate to where you want to install
 
 	execute command: git clone https://github.com/jwilson7110/parking .
@@ -25,6 +30,7 @@ intallation:
 
 
 usage:
+
 	visit /importLots to import initial data
 		this takes somewhere around 30 minutes due to only being able to request one set of lat/lng at a time
 		this can be executed multiple times to update the data with the file edited but there is currently no way to edit the file
